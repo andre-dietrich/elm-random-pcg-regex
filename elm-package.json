@@ -1,6 +1,6 @@
 {
     "version": "1.0.1",
-    "summary": "String generator from Regex.Pcg",
+    "summary": "String generator from Random.Pcg",
     "repository": "https://github.com/andre-dietrich/elm-random-pcg-regex.git",
     "license": "BSD3",
     "source-directories": [
