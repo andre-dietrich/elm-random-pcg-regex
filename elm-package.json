@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.0.0",
     "summary": "String generator from Random.Pcg",
     "repository": "https://github.com/andre-dietrich/elm-random-pcg-regex.git",
     "license": "BSD3",
@@ -7,11 +7,13 @@
         "src",
         "examples"
     ],
-    "exposed-modules": ["Random.Pcg.Regex"],
+    "exposed-modules": [
+        "Random.Pcg.Regex"
+    ],
     "dependencies": {
+        "elm-community/parser-combinators": "2.0.0 <= v < 3.0.0",
         "elm-lang/core": "5.1.1 <= v < 6.0.0",
         "elm-lang/html": "2.0.0 <= v < 3.0.0",
-        "elm-community/parser-combinators": "2.0.0 <= v < 3.0.0",
         "mgold/elm-random-pcg": "5.0.0 <= v <= 6.0.0"
     },
     "elm-version": "0.18.0 <= v < 0.19.0"
