@@ -207,7 +207,21 @@ constat_ =
 
 choice_ : Parser State (Generator (List Int))
 choice_ =
-    Random.Pcg.choices <$> brackets (many singletons)
+    (\re enc ->
+        enc
+            |> random_dotX
+            |> Random.Pcg.map List.singleton
+            |> Random.Pcg.filter (regex_filter <| Regex.regex re)
+    )
+        <$> regex "\\[[^\\]]*\\]"
+        <*> encoding
+
+
+regex_filter : Regex.Regex -> List Int -> Bool
+regex_filter re =
+    List.map Char.fromCode
+        >> String.fromList
+        >> Regex.contains re
 
 
 combine : List (Generator a) -> Generator (List a)
@@ -218,6 +232,16 @@ combine generators =
 
         g :: gs ->
             Random.Pcg.map2 (::) g (combine gs)
+
+
+random_dotX : Encoding -> Generator Int
+random_dotX encoding =
+    case encoding of
+        ASCII ->
+            10 ... (2 ^ 8)
+
+        UNICODE ->
+            10 ... (2 ^ 16)
 
 
 group_ : Parser State (Generator (List Int))
@@ -231,23 +255,22 @@ group_ =
 
 regex_regex : Parser State Regex.Regex
 regex_regex =
-    Regex.regex <$> regex "(\\[\\^?[^\\]]+\\]|\\([^\\)]+\\)|\\w)([+*]|\\{[^\\}]\\})?"
+    Regex.regex
+        <$> regex "(\\[\\^?[^\\]]+\\]|\\([^\\)]+\\)|\\w)([+*]|\\{[^\\}]\\})?"
 
 
 non_greedy : Regex.Regex -> Generator (List Int) -> Generator (List Int)
 non_greedy re p =
-    p
-        |> Random.Pcg.filter
-            (List.map Char.fromCode
-                >> String.fromList
-                >> Regex.contains re
-                >> not
-            )
+    Random.Pcg.filter
+        (regex_filter re >> not)
+        p
 
 
 rangeLengthList : Int -> Int -> Generator a -> Generator (List a)
 rangeLengthList minLength maxLength generator =
-    Random.Pcg.andThen (\len -> Random.Pcg.list len generator) (Random.Pcg.int minLength maxLength)
+    Random.Pcg.andThen
+        (\len -> Random.Pcg.list len generator)
+        (Random.Pcg.int minLength maxLength)
 
 
 repeat : Int -> Int -> Generator (List Int) -> Generator (List Int)
